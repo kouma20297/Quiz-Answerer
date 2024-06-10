@@ -39,4 +39,8 @@ class MainActivity : AppCompatActivity() {
         val quiz = quizData[0]
         binding.questionLabel.text = quiz[0]
     }
+
+    fun checkQuizCount(){
+
+    }
 }
