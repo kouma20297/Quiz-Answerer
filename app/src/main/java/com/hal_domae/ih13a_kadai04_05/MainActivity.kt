@@ -11,12 +11,16 @@ import com.hal_domae.ih13a_kadai04_05.databinding.ActivityMainBinding
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
-    private var rightAnswer: String? = null // クイズの正解
-    private var quizCount = 1
+    private var rightAnswer: String? = null
+    private var quizCount = 0
+    private var currentQuizIndex = 0 // 現在のクイズのインデックス
     private val quizData = mutableListOf(
-        listOf("パンはパンでも食べられないパンは", "フライパン"),
-        listOf("パンはパンでも食べられないパンは", "フライパン"),
-        listOf("パンはパンでも食べられないパンは", "フライパン")
+        listOf("パンはパンでも食べられないパンは", "huraipan"),
+        listOf("カッパは何色", "赤"),
+        listOf("正解いちオオカミに近い遺伝子をもっている犬は", "sibainu"),
+        listOf("熊本にクマはいるか", "inai"),
+        listOf("アディスアベバに平均年収は", "100")
+
     )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,33 +50,41 @@ class MainActivity : AppCompatActivity() {
     }
 
     // クイズを出題するメソッド
-    private fun showNextQuiz(){
+    // クイズを出題するメソッド
+    private fun showNextQuiz() {
         // 問題番号を表示
-        // 問題番号はプレースホルダになっている
-        binding.countLabel.text = getString(R.string.count_label, quizCount)
+        binding.countLabel.text = getString(R.string.count_label, currentQuizIndex + 1)
 
-        val quiz = quizData[0]
-        binding.questionLabel.text = quiz[0]
+        // 現在のクイズを取得し、問題文を表示
+        val currentQuiz = quizData[currentQuizIndex]
+        binding.questionLabel.text = currentQuiz[0]
+
+        // 正解を保持
+        rightAnswer = currentQuiz[1]
+
+        // 入力欄をクリア
+        binding.inputAnswer.text.clear()
     }
 
     fun checkQuizCount(){
 
+
     }
 
-    private fun checkAnswer(){
-        // 入力された答えを取得
+    private fun checkAnswer() {
         val answerText = binding.inputAnswer.text.toString()
-        // TODO 後で変える
-        val alertTitle: String = "正解or不正解"
+        val isCorrect = answerText.equals(rightAnswer, ignoreCase = true)
+        val alertTitle = if (isCorrect) "正解" else "不正解"
+        val alertMessage = if (isCorrect) "正解です!" else "不正解です。正解は「$rightAnswer」です。"
 
-        val answerDialogFragment = AnswerDialogFragment()
+        val answerDialogFragment = AnswerDialogFragment.newInstance(alertTitle, alertMessage)
+        answerDialogFragment.show(supportFragmentManager, "answer_dialog")
 
-        val bundle = Bundle().apply {
-            putString("TITLE", alertTitle)
-            putString("MESSAGE",alertTitle)
+        if (currentQuizIndex < quizData.size - 1) {
+            currentQuizIndex++
+        } else {
+            currentQuizIndex = 0 // 1問目に戻る
         }
-        answerDialogFragment.arguments = bundle
-        answerDialogFragment.isCancelable = false
-        answerDialogFragment.show(supportFragmentManager, "my_dialog")
+        showNextQuiz()
     }
 }

@@ -7,22 +7,30 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class AnswerDialogFragment : DialogFragment() {
 
-    // ダイアログを作る処理
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialog = activity?.let {
+        val title = requireArguments().getString("TITLE")
+        val message = requireArguments().getString("MESSAGE")
+
+        return activity?.let {
             MaterialAlertDialogBuilder(it)
-                .setTitle(arguments?.getString("TITLE"))
-                .setMessage(arguments?.getString("MESSAGE"))
-                /*
-                * Positive : 肯定的なアクション(OK、同意するなど)
-                * Negative : 否定的なアクション(キャンセル、同意しないなど)
-                * Neutral : どちらでも無い場合(保留、あとでなど)
-                * */
-                .setPositiveButton("OK") {_,_->
-                    // OK押されたときに実行されるメソッド
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("OK") { _, _ ->
                     (activity as MainActivity).checkQuizCount()
-                }.create()
+                }
+                .create()
+        } ?: throw IllegalStateException("アクティビティがありません")
+    }
+
+    companion object {
+        fun newInstance(title: String, message: String): AnswerDialogFragment {
+            val fragment = AnswerDialogFragment()
+            val args = Bundle().apply {
+                putString("TITLE", title)
+                putString("MESSAGE", message)
+            }
+            fragment.arguments = args
+            return fragment
         }
-        return dialog ?: throw IllegalStateException("アクティビティがありません")
     }
 }
